@@ -1,0 +1,10 @@
+{
+  "name": "Gasto Calórico — Prato do Dia",
+  "short_name": "Gasto Calórico",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f7f5",
+  "theme_color": "#1f6b45",
+  "lang": "pt-BR",
+  "description": "Calculadora de gasto calórico por atividade física."
+}
