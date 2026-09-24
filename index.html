@@ -19,7 +19,7 @@
       name="description"
       content="Prato do Dia, do grupo Plano Mestre Vida: registre alimentos, exercícios e medidas e acompanhe metas de calorias, macros, fibras e sódio. Idealizado por Fausto Costa Galvani."
     />
-      <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="manifest" href="manifest.webmanifest" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
     <meta name="theme-color" content="#0E2C4B" />
@@ -34,425 +34,39 @@
   </head>
   <body>
     <div id="root"></div>
-  <script>
-    (function () {
-      if (!("serviceWorker" in navigator) || !/^https:|^http:\/\/localhost/.test(location.protocol + "//" + location.host)) return;
-      navigator.serviceWorker.register("./sw.js", { scope: "./" }).then(function () {
-        if (!navigator.serviceWorker.controller && !sessionStorage.getItem("pd-sw-reloaded")) {
-          sessionStorage.setItem("pd-sw-reloaded", "1");
-          location.reload();
-        }
-      }).catch(function (err) { console.warn("Prato do Dia: Service Worker não registrado", err); });
-    })();
-  </script>
-  <script data-pplx-inline-edit>
-(function () {
-  if (window === window.top) return;
 
-  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://perplexity.localhost","http://localhost:1420","http://127.0.0.1:1420","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
-  const MAX_FONT_BYTES = 500 * 1024;
-  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
-  let scrollForwarding = false;
-  let scrollRaf = 0;
-  let trustedTopOrigin = null;
+    <!-- Registro do Service Worker -->
+    <script>
+      (function () {
+        if (!("serviceWorker" in navigator) || !/^https:|^http:\/\/localhost/.test(location.protocol + "//" + location.host)) return;
+        navigator.serviceWorker.register("./sw.js", { scope: "./" }).then(function () {
+          if (!navigator.serviceWorker.controller && !sessionStorage.getItem("pd-sw-reloaded")) {
+            sessionStorage.setItem("pd-sw-reloaded", "1");
+            location.reload();
+          }
+        }).catch(function (err) { console.warn("Prato do Dia: SW não registrado", err); });
+      })();
+    </script>
 
-  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
-  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
-  // across multiple labels.
-  function matchesAllowedOrigin(origin) {
-    if (!origin) return false;
-    for (const entry of allowedParentOrigins) {
-      if (!entry.includes("*")) {
-        if (entry === origin) return true;
-        continue;
-      }
-      const pattern = new RegExp(
-        "^" +
-          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
-          "$",
-      );
-      if (pattern.test(origin)) return true;
-    }
-    return false;
-  }
-
-  // Trust decision: when the sender is same-origin-visible (event.origin is a
-  // real origin like https://www.perplexity.ai) we trust event.origin directly.
-  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
-  // broker's stamped `parentOrigin` to identify the top window. The fallback
-  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
-  // on the response path (see postToTrustedTop) to ensure replies can't be
-  // delivered to anyone but the actual top window of that claimed origin.
-  function getTrustedParentOrigin(event) {
-    const forwardedParentOrigin =
-      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
-    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
-    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
-  }
-
-  // All responses go to window.top with targetOrigin = the allowlisted origin.
-  // An attacker that iframes us inside their own null-origin broker can claim
-  // any parentOrigin they like, but the browser will drop the reply whenever
-  // the real top's origin doesn't match — so the screenshot never leaves.
-  function postToTrustedTop(message) {
-    if (!trustedTopOrigin) return;
-    try {
-      window.top.postMessage(message, trustedTopOrigin);
-    } catch (_error) {}
-  }
-
-  function inlineAll(original, clone) {
-    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
-
-    try {
-      const computedStyle = getComputedStyle(original);
-      // cssText on a computed style is the serialized declaration in modern
-      // Chromium/Safari — a single read beats enumerating ~400 longhand
-      // properties. Firefox returns "" here, so we fall back on empty.
-      const serialized = computedStyle.cssText;
-      if (serialized) {
-        clone.style.cssText = serialized;
-      } else {
-        const parts = new Array(computedStyle.length);
-        for (let index = 0; index < computedStyle.length; index += 1) {
-          const property = computedStyle[index];
-          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
-        }
-        clone.style.cssText = parts.join("");
-      }
-    } catch (_error) {}
-
-    const originalChildren = original.children;
-    const clonedChildren = clone.children;
-    for (
-      let index = 0;
-      index < originalChildren.length && index < clonedChildren.length;
-      index += 1
-    ) {
-      inlineAll(originalChildren[index], clonedChildren[index]);
-    }
-  }
-
-  function extractFontUrl(srcValue) {
-    const matches = [
-      ...srcValue.matchAll(
-        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
-      ),
-    ];
-    if (matches.length === 0) return null;
-    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
-    if (woff2) return woff2[1];
-    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
-    if (woff) return woff[1];
-    return matches[0][1];
-  }
-
-  // Cache resolved font URL -> data URI across captures. Fonts on a page
-  // essentially never change, and a batch run emits multiple captures back to
-  // back — without this we'd refetch + re-base64 every time.
-  const fontDataUriCache = new Map();
-  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
-
-  async function fetchAsDataUri(url) {
-    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
-    let dataUri = null;
-    try {
-      const response = await fetch(url, { mode: "cors", credentials: "omit" });
-      if (response.ok) {
-        const blob = await response.blob();
-        if (blob.size <= MAX_FONT_BYTES) {
-          dataUri = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () =>
-              resolve(typeof reader.result === "string" ? reader.result : null);
-            reader.onerror = () => resolve(null);
-            reader.readAsDataURL(blob);
-          });
-        }
-      }
-    } catch (_error) {
-      dataUri = null;
-    }
-    fontDataUriCache.set(url, dataUri);
-    return dataUri;
-  }
-
-  function collectFontFaceRuleTexts() {
-    const rules = [];
-    for (const sheet of document.styleSheets) {
-      let cssRules;
-      try {
-        cssRules = sheet.cssRules;
-      } catch (_error) {
-        continue;
-      }
-      if (!cssRules) continue;
-      for (const rule of cssRules) {
-        const cssText = rule.cssText || "";
-        if (cssText.startsWith("@font-face")) rules.push(cssText);
-      }
-    }
-    return rules;
-  }
-
-  async function buildInlinedFontCss() {
-    const ruleTexts = collectFontFaceRuleTexts();
-    if (ruleTexts.length === 0) return null;
-
-    const resolved = ruleTexts.map((cssText) => {
-      if (!SRC_DECLARATION_RE.test(cssText)) return null;
-      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
-      if (!srcMatch) return null;
-      const url = extractFontUrl(srcMatch[1]);
-      if (!url) return null;
-      try {
-        return { cssText, url: new URL(url, document.baseURI).href };
-      } catch (_error) {
-        return null;
-      }
-    });
-
-    const dataUris = await Promise.all(
-      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
-    );
-
-    const inlined = [];
-    let totalBytes = 0;
-    for (let index = 0; index < resolved.length; index += 1) {
-      const entry = resolved[index];
-      const dataUri = dataUris[index];
-      if (!entry || !dataUri) continue;
-      const approxBytes = dataUri.length * 0.75;
-      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
-      totalBytes += approxBytes;
-      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
-    }
-    return inlined.length > 0 ? inlined.join("\n") : null;
-  }
-
-  function stripExternal(clone) {
-    const images = clone.querySelectorAll("img");
-    for (let index = 0; index < images.length; index += 1) {
-      const src = images[index].getAttribute("src");
-      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
-    }
-
-    const elements = clone.querySelectorAll("*");
-    for (let index = 0; index < elements.length; index += 1) {
-      const style = elements[index].style.cssText;
-      if (style && style.includes("url(")) {
-        elements[index].style.cssText = style.replace(
-          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
-          "none",
-        );
-      }
-    }
-  }
-
-  function emitScroll() {
-    scrollRaf = 0;
-    if (!scrollForwarding) return;
-    postToTrustedTop({
-      type: "INLINE_EDIT_SCROLL",
-      scrollX: window.scrollX,
-      scrollY: window.scrollY,
-    });
-  }
-
-  window.addEventListener(
-    "scroll",
-    function () {
-      if (!scrollForwarding || scrollRaf) return;
-      scrollRaf = requestAnimationFrame(emitScroll);
-    },
-    { passive: true, capture: true },
-  );
-
-  async function handleCaptureRequest(event) {
-    const requestId = event.data.requestId;
-    const scrollX = window.scrollX;
-    const scrollY = window.scrollY;
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-
-    function postResult(dataUrl) {
-      postToTrustedTop({
-        type: "INLINE_EDIT_SCREENSHOT_RESULT",
-        requestId,
-        dataUrl,
-        scrollX,
-        scrollY,
+    <!-- Fallback de boot -->
+    <script>
+      window.addEventListener("load", function () {
+        setTimeout(function () {
+          const root = document.getElementById("root");
+          if (root && root.children.length === 0) {
+            import("./assets/index-CZ9VoIu1.js?boot=8").catch(function () {
+              root.innerHTML = '<div style="padding:24px;font:16px system-ui;color:#0E2C4B">Não foi possível carregar o aplicativo. Feche e abra novamente.</div>';
+            });
+          }
+        }, 900);
       });
-    }
+    </script>
 
-    try {
-      // Wait for any pending web fonts to resolve so both inline metrics and
-      // the @font-face inlining below see the same loaded faces.
-      if (document.fonts && document.fonts.ready) {
-        try {
-          await document.fonts.ready;
-        } catch (_error) {}
-      }
+    <!-- Melhorias visuais (opcional — pode remover as 2 linhas para voltar ao visual original) -->
+    <link rel="stylesheet" href="./assets/pd-polish.css" />
+    <script defer src="./assets/pd-polish.js"></script>
 
-      const clone = document.documentElement.cloneNode(true);
-      inlineAll(document.documentElement, clone);
-
-      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
-      for (let index = 0; index < removedNodes.length; index += 1) {
-        removedNodes[index].remove();
-      }
-
-      stripExternal(clone);
-
-      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
-      // can resolve them — external font URLs aren't fetched during
-      // foreignObject rendering, which would otherwise force a fallback face
-      // and change text metrics.
-      const inlinedFontCss = await buildInlinedFontCss();
-      if (inlinedFontCss) {
-        const styleEl = document.createElement("style");
-        styleEl.textContent = inlinedFontCss;
-        const head = clone.querySelector("head");
-        if (head) head.appendChild(styleEl);
-        else clone.insertBefore(styleEl, clone.firstChild);
-      }
-
-      const html = new XMLSerializer().serializeToString(clone);
-      const svg =
-        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
-        '<foreignObject width="100%" height="100%">' +
-        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
-        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
-        html +
-        "</div></div></foreignObject></svg>";
-      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-      const image = new Image();
-      image.onload = function () {
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        canvas.getContext("2d").drawImage(image, 0, 0);
-        postResult(canvas.toDataURL("image/png"));
-      };
-      image.onerror = function () {
-        postResult(null);
-      };
-      image.src = svgUrl;
-    } catch (_error) {
-      postResult(null);
-    }
-  }
-
-  window.addEventListener("message", function (event) {
-    if (!event.data) return;
-    // Only accept messages from the direct parent frame. Blocks sibling /
-    // unrelated-window postMessage senders that could otherwise reach us.
-    if (event.source !== window.parent) return;
-
-    const trustedParentOrigin = getTrustedParentOrigin(event);
-    if (!trustedParentOrigin) return;
-    trustedTopOrigin = trustedParentOrigin;
-
-    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
-      scrollForwarding = true;
-      emitScroll();
-      return;
-    }
-
-    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
-      scrollForwarding = false;
-      if (scrollRaf) cancelAnimationFrame(scrollRaf);
-      scrollRaf = 0;
-      return;
-    }
-
-    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
-
-    handleCaptureRequest(event);
-  });
-})();
-
-
-  </script>
-  <script>
-    try {
-      localStorage.setItem("prato-do-dia:usuario", "principal");
-    } catch (_) {}
-    (function () {
-      let installEvent = window.__pdInstallEvent || null;
-      const button = document.createElement("button");
-      button.textContent = "⇩ Instalar";
-      button.setAttribute("aria-label", "Instalar Prato do Dia");
-      button.style.cssText = "position:fixed;right:14px;bottom:18px;z-index:9999;border:0;border-radius:10px;padding:11px 14px;background:#0E2C4B;color:#fff;font:600 14px system-ui;box-shadow:0 4px 14px #0003;cursor:pointer";
-      button.hidden = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
-      document.body.appendChild(button);
-      window.addEventListener("beforeinstallprompt", function (event) {
-        event.preventDefault();
-        installEvent = event;
-        window.__pdInstallEvent = event;
-        button.hidden = false;
-      });
-      window.addEventListener("appinstalled", function () { button.hidden = true; });
-      window.__pdInstallUnavailable = function () {
-        const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
-        alert(ios
-          ? "No iPhone/iPad, a instalação é feita pelo Safari: toque em Compartilhar e depois em Adicionar à Tela de Início."
-          : "O Chrome ainda não liberou o pedido nativo de instalação para esta visita. Feche outras abas deste site, recarregue a página e toque novamente em Instalar.");
-      };
-      button.addEventListener("click", async function () {
-        if (!installEvent && window.__pdInstallEvent) installEvent = window.__pdInstallEvent;
-        if (!installEvent) { window.__pdInstallUnavailable(); return; }
-        try { await installEvent.prompt(); } catch (_) { window.__pdInstallUnavailable(); }
-        installEvent = null;
-        window.__pdInstallEvent = null;
-        button.hidden = true;
-      });
-    })();
-    window.addEventListener("load", function () {
-      setTimeout(function () {
-        const root = document.getElementById("root");
-        if (root && root.children.length === 0) {
-          import("./assets/index-CZ9VoIu1.js?boot=8").catch(function () {
-            root.innerHTML = '<div style="padding:24px;font:16px system-ui;color:#0E2C4B">Não foi possível carregar o aplicativo. Feche e abra novamente.</div>';
-          });
-        }
-      }, 900);
-    });
-    (function () {
-      const wrap = document.createElement("div");
-      wrap.id = "pd-data-tools";
-      wrap.style.cssText = "position:fixed;left:14px;bottom:18px;z-index:9998;display:flex;gap:6px;flex-wrap:wrap;max-width:calc(100vw - 120px)";
-      const style = "border:1px solid #0E2C4B;border-radius:9px;padding:9px 10px;background:#fff;color:#0E2C4B;font:600 12px system-ui;box-shadow:0 3px 12px #0002";
-      function button(label, action) { const b=document.createElement("button"); b.textContent=label; b.style.cssText=style; b.addEventListener("click",action); wrap.appendChild(b); return b; }
-      function download(url) { const a=document.createElement("a"); a.href=url; a.download=""; document.body.appendChild(a); a.click(); a.remove(); }
-      button("CSV",()=>download("./port/5000/api/export.csv?u=principal"));
-      button("JSON",()=>download("./port/5000/api/export.json?u=principal"));
-      const file=document.createElement("input"); file.type="file"; file.accept=".json,application/json"; file.hidden=true;
-      file.addEventListener("change",async()=>{const f=file.files[0];if(!f)return;try{const payload=JSON.parse(await f.text());const r=await fetch("./port/5000/api/import",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});if(!r.ok)throw Error();alert("Dados importados. O aplicativo será atualizado.");location.reload()}catch(_){alert("Não foi possível importar este backup JSON.")}});
-      document.body.appendChild(file);
-      button("Importar",()=>file.click());
-      button("Relatório PDF",async()=>{const win=window.open("","_blank");if(!win){alert("Permita a abertura de uma nova janela para gerar o relatório.");return}win.document.write("<p style='font:16px system-ui'>Gerando relatório…</p>");try{const d=await fetch("./port/5000/api/export.json?u=principal").then(r=>r.json());const p=d.data?.profile||{};const day=(d.data?.daily||[]).find(x=>x.date===new Date().toISOString().slice(0,10))||{};const entries=d.data?.entries||[];const workouts=d.data?.workouts||d.data?.exercises||[];const body=(d.data?.body||[]).filter(x=>x&&x.date).sort((a,b)=>String(a.date).localeCompare(String(b.date)));const last=body[body.length-1]||{};const first=body[0]||{};const delta=(a,b)=>a!=null&&b!=null?` (${(a-b>=0?"+":"")+(a-b).toFixed(1)})`:"";win.document.documentElement.innerHTML=`<head><title>Relatório Prato do Dia</title><style>body{font:14px Arial;color:#17352e;max-width:760px;margin:32px auto}h1{color:#0e2c4b;border-bottom:2px solid #2d8061;padding-bottom:10px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card{border:1px solid #ccd8d1;border-radius:10px;padding:12px}small{color:#667}</style></head><body><h1>Prato do Dia — Painel resumo</h1><small>Gerado em ${new Date().toLocaleString("pt-BR")}</small><div class='grid'><div class='card'><b>Perfil</b><br>${p.name||""}<br>Peso: ${p.weightKg||"—"} kg<br>Meta: ${p.kcalGoal||"calculada"} kcal/dia</div><div class='card'><b>Hidratação</b><br>${day.waterMl||0} ml registrados<br>Meta: ${p.waterMl||"—"} ml/dia</div><div class='card'><b>Alimentação</b><br>${entries.length} registros</div><div class='card'><b>Exercícios</b><br>${workouts.length} registros</div></div><h2>Evolução das medidas</h2><p>Registros: ${body.length}. Última avaliação: ${last.date||"—"}</p><div class='card'>Peso: ${last.weight??"—"} kg${delta(last.weight,first.weight)}<br>Gordura: ${last.bodyFat??"—"}%${delta(last.bodyFat,first.bodyFat)}<br>Cintura: ${last.waist??"—"} cm${delta(last.waist,first.waist)}<br>Quadril: ${last.hip??"—"} cm${delta(last.hip,first.hip)}<br>RMR: ${last.rmrBio??"—"} kcal</div><h2>Observação</h2><p>Este relatório é uma estimativa e não substitui orientação de nutricionista ou médico.</p></body>`;win.focus();setTimeout(()=>win.print(),300)}catch(_){win.document.body.innerHTML="<p>Não foi possível gerar o relatório.</p>"}});
-    })();
-    (function () {
-      let panel = null, period = 30;
-      const css = "margin-top:18px;border:1px solid #d4dfd9;border-radius:14px;padding:16px;background:var(--card,#fff);color:var(--foreground,#17352e)";
-      function activePanel(){const tab=document.querySelector('[data-testid="tab-painel"]');return !!tab&&tab.className.includes('bg-primary')}
-      function esc(v){return String(v??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
-      function draw(){
-        if(!panel)return;
-        fetch('./port/5000/api/export.json?u=principal').then(r=>r.json()).then(d=>{
-          const rows=(d.data?.body||[]).filter(x=>x&&x.date).sort((a,b)=>String(a.date).localeCompare(String(b.date))).slice(-period);
-          const nums=rows.map(x=>Number(x.weight)).filter(Number.isFinite); const min=nums.length?Math.min(...nums):0; const max=nums.length?Math.max(...nums):1; const range=Math.max(max-min,1);
-          const points=rows.map((x,i)=>{const px=20+(i*360/Math.max(rows.length-1,1));const py=145-((Number(x.weight)-min)/range)*105;return `${px.toFixed(1)},${py.toFixed(1)}`}).join(' ');
-          const last=rows[rows.length-1]||{}; const first=rows[0]||{}; const diff=(a,b)=>Number.isFinite(Number(a))&&Number.isFinite(Number(b))?`${Number(a)-Number(b)>=0?'+':''}${(Number(a)-Number(b)).toFixed(1)}`:'—';
-          panel.innerHTML=`<h2 style="margin:0;font-size:17px">Evolução das medidas</h2><p style="margin:5px 0 10px;color:#71817b;font-size:12px">Peso e medidas registradas na aba Corpo</p><div style="display:flex;gap:6px;margin-bottom:10px">${[7,14,30].map(n=>`<button data-pd-period="${n}" style="border:1px solid #2d8061;border-radius:8px;padding:6px 10px;background:${period===n?'#2d8061':'transparent'};color:${period===n?'#fff':'inherit'}">${n} dias</button>`).join('')}</div>${rows.length?`<svg viewBox="0 0 400 170" width="100%" height="180" role="img" aria-label="Gráfico de evolução do peso"><line x1="20" y1="145" x2="380" y2="145" stroke="#ccd8d1"/><polyline fill="none" stroke="#2d8061" stroke-width="3" points="${points}"/>${rows.map((x,i)=>{const px=20+(i*360/Math.max(rows.length-1,1));const py=145-((Number(x.weight)-min)/range)*105;return `<circle cx="${px}" cy="${py}" r="4" fill="#e98c4a"/>`}).join('')}<text x="20" y="165" font-size="10" fill="#71817b">${esc(rows[0].date)}</text><text x="330" y="165" font-size="10" fill="#71817b">${esc(last.date)}</text></svg>`:'<p style="padding:20px 0;color:#71817b">Ainda não há medidas suficientes para desenhar o gráfico.</p>'}<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;font-size:13px"><div><b>Peso atual</b><br>${last.weight??'—'} kg</div><div><b>Variação no período</b><br>${diff(last.weight,first.weight)} kg</div><div><b>Cintura atual</b><br>${last.waist??'—'} cm</div><div><b>Gordura atual</b><br>${last.bodyFat??'—'}%</div></div>`;
-          panel.querySelectorAll('[data-pd-period]').forEach(b=>b.addEventListener('click',()=>{period=Number(b.dataset.pdPeriod);draw()}));
-        });
-      }
-      function sync(){const main=document.querySelector('main');if(!main)return;if(!panel){panel=document.createElement('section');panel.id='pd-evolution';panel.style.cssText=css}if(activePanel()){if(!panel.isConnected)main.appendChild(panel);draw()}else if(panel.isConnected)panel.remove()}
-      document.addEventListener('click',e=>{const tab=e.target.closest('[data-testid^="tab-"]');if(!tab)return;if(tab.dataset.testid==="tab-painel")setTimeout(sync,50);else if(panel?.isConnected)panel.remove()});
-      setTimeout(sync,1200);
-    })();
-  </script>
-</body>
+    <!-- Exportar / Importar / Relatório -->
+    <script defer src="./assets/pd-data.js"></script>
+  </body>
 </html>
