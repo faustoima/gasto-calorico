@@ -35,7 +35,7 @@
   <body>
     <div id="root"></div>
 
-    <!-- Script 1 — Registro do Service Worker -->
+    <!-- Service Worker -->
     <script>
       (function () {
         if (!("serviceWorker" in navigator) || !/^https:|^http:\/\/localhost/.test(location.protocol + "//" + location.host)) return;
@@ -48,7 +48,7 @@
       })();
     </script>
 
-    <!-- Script 2 — Usuário principal + botão Instalar -->
+    <!-- Botão Instalar -->
     <script>
       try { localStorage.setItem("prato-do-dia:usuario", "principal"); } catch (_) {}
       (function () {
@@ -83,7 +83,7 @@
       })();
     </script>
 
-    <!-- Script 3 — Fallback de boot -->
+    <!-- Fallback de boot -->
     <script>
       window.addEventListener("load", function () {
         setTimeout(function () {
@@ -97,14 +97,10 @@
       });
     </script>
 
-    <!-- Melhorias visuais — pode remover estas 2 linhas para voltar ao visual original -->
-    <link rel="stylesheet" href="./assets/pd-polish.css" />
-    <script defer src="./assets/pd-polish.js"></script>
-
-    <!-- Exportar / Importar / Relatório -->
+    <!-- Exportar / Importar / Relatório — ÚNICO arquivo novo -->
     <script defer src="./assets/pd-data.js"></script>
 
-    <!-- Painel de evolução (bloco original mantido) -->
+    <!-- Painel de evolução (script original) -->
     <script>
     (function () {
       let panel = null, period = 30;
