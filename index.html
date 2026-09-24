@@ -1,72 +1,158 @@
-<!doctype html>
-<html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <link rel="icon" type="image/png" href="favicon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Fira+Code:wght@300..700&family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Outfit:wght@100..900&family=Oxanium:wght@200..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto:ital,wght@0,100..900;1,100..900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Space+Grotesk:wght@300..700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=general-sans@500,600&display=swap"
-      rel="stylesheet"
-    />
-    <title>Prato do Dia — Plano Mestre Vida</title>
-    <meta
-      name="description"
-      content="Prato do Dia, do grupo Plano Mestre Vida: registre alimentos, exercícios e medidas e acompanhe metas de calorias, macros, fibras e sódio. Idealizado por Fausto Costa Galvani."
-    />
-    <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
-    <meta name="theme-color" content="#0E2C4B" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="Prato do Dia" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta property="og:title" content="Prato do Dia — Plano Mestre Vida" />
-    <meta property="og:image" content="icon-512.png" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <script type="module" crossorigin src="./assets/index-CZ9VoIu1.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-CWVMaK0X.css">
-  </head>
-  <body>
-    <div id="root"></div>
+/* =========================================================================
+   Prato do Dia — refinamentos visuais
+   Carregado DEPOIS do bundle. Se algo ficar estranho, remova a linha
+   <link rel="stylesheet" href="./assets/pd-polish.css" /> no index.html.
+   Não altera nenhum dado, cálculo ou regra de negócio.
+   ========================================================================= */
 
-    <!-- Registro do Service Worker -->
-    <script>
-      (function () {
-        if (!("serviceWorker" in navigator) || !/^https:|^http:\/\/localhost/.test(location.protocol + "//" + location.host)) return;
-        navigator.serviceWorker.register("./sw.js", { scope: "./" }).then(function () {
-          if (!navigator.serviceWorker.controller && !sessionStorage.getItem("pd-sw-reloaded")) {
-            sessionStorage.setItem("pd-sw-reloaded", "1");
-            location.reload();
-          }
-        }).catch(function (err) { console.warn("Prato do Dia: SW não registrado", err); });
-      })();
-    </script>
+/* -------------------------------------------------------------------------
+   REDE DE SEGURANÇA — impede imagens gigantes se o CSS principal falhar
+   ------------------------------------------------------------------------- */
+img, svg, video, canvas {
+  max-width: 100%;
+  height: auto;
+}
+/* Os logos do bundle são configurados por inline-style; forçamos o tamanho */
+img[alt="Plano Mestre Vida"] {
+  width: 36px !important;
+  height: 36px !important;
+  max-width: 36px !important;
+  max-height: 36px !important;
+  object-fit: cover;
+}
+/* Header: logo pequeno e controlado */
+header img,
+header svg {
+  max-height: 44px;
+}
+/* Footer: logo do rodapé e do perfil */
+footer img,
+footer svg {
+  max-height: 56px;
+  width: auto;
+}
+/* Ícones internos de abas, cards e botões */
+main svg,
+main img {
+  max-height: 32px;
+}
+/* Botões redondos (chips) */
+button svg {
+  max-width: 20px;
+  max-height: 20px;
+}
 
-    <!-- Fallback de boot -->
-    <script>
-      window.addEventListener("load", function () {
-        setTimeout(function () {
-          const root = document.getElementById("root");
-          if (root && root.children.length === 0) {
-            import("./assets/index-CZ9VoIu1.js?boot=8").catch(function () {
-              root.innerHTML = '<div style="padding:24px;font:16px system-ui;color:#0E2C4B">Não foi possível carregar o aplicativo. Feche e abra novamente.</div>';
-            });
-          }
-        }, 900);
-      });
-    </script>
+/* -------------------------------------------------------------------------
+   TIPOGRAFIA — respiro, sem mudar tamanhos relativos
+   ------------------------------------------------------------------------- */
+body {
+  font-feature-settings: "tnum" 0, "cv11" 1;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.005em;
+}
+h1, h2, h3, .font-display {
+  letter-spacing: -0.02em;
+}
+@media (max-width: 640px) {
+  body { font-size: 15.5px; }
+}
 
-    <!-- Melhorias visuais (opcional — pode remover as 2 linhas para voltar ao visual original) -->
-    <link rel="stylesheet" href="./assets/pd-polish.css" />
-    <script defer src="./assets/pd-polish.js"></script>
+/* -------------------------------------------------------------------------
+   CARDS — cantos suaves e sombra discreta
+   ------------------------------------------------------------------------- */
+section.rounded-xl,
+div.rounded-xl {
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.03), 0 4px 14px rgba(0,0,0,.03);
+}
+section.rounded-lg,
+div.rounded-lg {
+  border-radius: 12px;
+}
 
-    <!-- Exportar / Importar / Relatório -->
-    <script defer src="./assets/pd-data.js"></script>
-  </body>
-</html>
+/* -------------------------------------------------------------------------
+   CABEÇALHO — fixo com leve desfoque
+   ------------------------------------------------------------------------- */
+header.sticky {
+  box-shadow: 0 1px 0 hsl(var(--border) / .6);
+  backdrop-filter: saturate(140%) blur(10px);
+  -webkit-backdrop-filter: saturate(140%) blur(10px);
+}
+
+/* -------------------------------------------------------------------------
+   BOTÕES — feedback visual mais claro
+   ------------------------------------------------------------------------- */
+button {
+  transition: transform .08s ease, background-color .15s ease, border-color .15s ease;
+}
+button:active:not(:disabled) {
+  transform: scale(.97);
+}
+.rounded-full.border {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* -------------------------------------------------------------------------
+   INPUTS — foco visível
+   ------------------------------------------------------------------------- */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid hsl(var(--ring) / .5);
+  outline-offset: 2px;
+  border-color: hsl(var(--ring) / .6) !important;
+}
+
+/* -------------------------------------------------------------------------
+   TABELAS — legibilidade
+   ------------------------------------------------------------------------- */
+table tbody tr:nth-child(odd) {
+  background: hsl(var(--muted) / .25);
+}
+table tbody td,
+table thead th {
+  padding-top: .55rem !important;
+  padding-bottom: .55rem !important;
+}
+
+/* -------------------------------------------------------------------------
+   BARRA DE PROGRESSO — transição mais suave
+   ------------------------------------------------------------------------- */
+.h-full.rounded-full.transition-all {
+  transition-duration: 700ms !important;
+  transition-timing-function: cubic-bezier(.22,.61,.36,1);
+}
+
+/* -------------------------------------------------------------------------
+   BOTÃO INSTALAR — não conflita com o FAB "Dados"
+   ------------------------------------------------------------------------- */
+#pd-data-fab {
+  /* O FAB "Dados" fica no canto inferior esquerdo; o Instalar no direito. */
+}
+
+/* -------------------------------------------------------------------------
+   MODAL DE DADOS ABERTO — esconder FAB para não atrapalhar
+   ------------------------------------------------------------------------- */
+body.pd-modal-open #pd-data-fab {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s ease;
+}
+
+/* -------------------------------------------------------------------------
+   iOS — scroll suave
+   ------------------------------------------------------------------------- */
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* -------------------------------------------------------------------------
+   TELAS MUITO ESTREITAS
+   ------------------------------------------------------------------------- */
+@media (max-width: 380px) {
+  .lg\:grid-cols-\[minmax\(0\,1fr\)_minmax\(0\,1\.05fr\)\] {
+    grid-template-columns: 1fr !important;
+  }
+}
