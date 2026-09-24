@@ -1,0 +1,158 @@
+/* =========================================================================
+   Prato do Dia — refinamentos visuais
+   Carregado DEPOIS do bundle. Se algo ficar estranho, remova a linha
+   <link rel="stylesheet" href="./assets/pd-polish.css" /> no index.html.
+   Não altera nenhum dado, cálculo ou regra de negócio.
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   REDE DE SEGURANÇA — impede imagens gigantes se o CSS principal falhar
+   ------------------------------------------------------------------------- */
+img, svg, video, canvas {
+  max-width: 100%;
+  height: auto;
+}
+/* Os logos do bundle são configurados por inline-style; forçamos o tamanho */
+img[alt="Plano Mestre Vida"] {
+  width: 36px !important;
+  height: 36px !important;
+  max-width: 36px !important;
+  max-height: 36px !important;
+  object-fit: cover;
+}
+/* Header: logo pequeno e controlado */
+header img,
+header svg {
+  max-height: 44px;
+}
+/* Footer: logo do rodapé e do perfil */
+footer img,
+footer svg {
+  max-height: 56px;
+  width: auto;
+}
+/* Ícones internos de abas, cards e botões */
+main svg,
+main img {
+  max-height: 32px;
+}
+/* Botões redondos (chips) */
+button svg {
+  max-width: 20px;
+  max-height: 20px;
+}
+
+/* -------------------------------------------------------------------------
+   TIPOGRAFIA — respiro, sem mudar tamanhos relativos
+   ------------------------------------------------------------------------- */
+body {
+  font-feature-settings: "tnum" 0, "cv11" 1;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.005em;
+}
+h1, h2, h3, .font-display {
+  letter-spacing: -0.02em;
+}
+@media (max-width: 640px) {
+  body { font-size: 15.5px; }
+}
+
+/* -------------------------------------------------------------------------
+   CARDS — cantos suaves e sombra discreta
+   ------------------------------------------------------------------------- */
+section.rounded-xl,
+div.rounded-xl {
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.03), 0 4px 14px rgba(0,0,0,.03);
+}
+section.rounded-lg,
+div.rounded-lg {
+  border-radius: 12px;
+}
+
+/* -------------------------------------------------------------------------
+   CABEÇALHO — fixo com leve desfoque
+   ------------------------------------------------------------------------- */
+header.sticky {
+  box-shadow: 0 1px 0 hsl(var(--border) / .6);
+  backdrop-filter: saturate(140%) blur(10px);
+  -webkit-backdrop-filter: saturate(140%) blur(10px);
+}
+
+/* -------------------------------------------------------------------------
+   BOTÕES — feedback visual mais claro
+   ------------------------------------------------------------------------- */
+button {
+  transition: transform .08s ease, background-color .15s ease, border-color .15s ease;
+}
+button:active:not(:disabled) {
+  transform: scale(.97);
+}
+.rounded-full.border {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* -------------------------------------------------------------------------
+   INPUTS — foco visível
+   ------------------------------------------------------------------------- */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid hsl(var(--ring) / .5);
+  outline-offset: 2px;
+  border-color: hsl(var(--ring) / .6) !important;
+}
+
+/* -------------------------------------------------------------------------
+   TABELAS — legibilidade
+   ------------------------------------------------------------------------- */
+table tbody tr:nth-child(odd) {
+  background: hsl(var(--muted) / .25);
+}
+table tbody td,
+table thead th {
+  padding-top: .55rem !important;
+  padding-bottom: .55rem !important;
+}
+
+/* -------------------------------------------------------------------------
+   BARRA DE PROGRESSO — transição mais suave
+   ------------------------------------------------------------------------- */
+.h-full.rounded-full.transition-all {
+  transition-duration: 700ms !important;
+  transition-timing-function: cubic-bezier(.22,.61,.36,1);
+}
+
+/* -------------------------------------------------------------------------
+   BOTÃO INSTALAR — não conflita com o FAB "Dados"
+   ------------------------------------------------------------------------- */
+#pd-data-fab {
+  /* O FAB "Dados" fica no canto inferior esquerdo; o Instalar no direito. */
+}
+
+/* -------------------------------------------------------------------------
+   MODAL DE DADOS ABERTO — esconder FAB para não atrapalhar
+   ------------------------------------------------------------------------- */
+body.pd-modal-open #pd-data-fab {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s ease;
+}
+
+/* -------------------------------------------------------------------------
+   iOS — scroll suave
+   ------------------------------------------------------------------------- */
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* -------------------------------------------------------------------------
+   TELAS MUITO ESTREITAS
+   ------------------------------------------------------------------------- */
+@media (max-width: 380px) {
+  .lg\:grid-cols-\[minmax\(0\,1fr\)_minmax\(0\,1\.05fr\)\] {
+    grid-template-columns: 1fr !important;
+  }
+}
