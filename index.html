@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Fira+Code:wght@300..700&family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Outfit:wght@100..900&family=Oxanium:wght@200..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto:ital,wght@0,100..900;1,100..900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Space+Grotesk:wght@300..700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=general-sans@500,600&display=swap"
+      rel="stylesheet"
+    />
+    <title>Prato do Dia — Plano Mestre Vida</title>
+    <meta
+      name="description"
+      content="Prato do Dia, do grupo Plano Mestre Vida: registre alimentos, exercícios e medidas e acompanhe metas de calorias, macros, fibras e sódio. Idealizado por Fausto Costa Galvani."
+    />
+      <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+    <meta name="theme-color" content="#0E2C4B" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Prato do Dia" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta property="og:title" content="Prato do Dia — Plano Mestre Vida" />
+    <meta property="og:image" content="icon-512.png" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <script>
+    (function () {
+      function loadJson(path) { return fetch(path, {cache:"no-store"}).then(function (r) { if (!r.ok) throw Error(path); return r.json(); }); }
+      function loadCustom(key) { return new Promise(function(resolve){ var q=indexedDB.open("prato-do-dia-offline-v2",1); q.onupgradeneeded=function(){if(!q.result.objectStoreNames.contains("data"))q.result.createObjectStore("data")}; q.onsuccess=function(){var db=q.result,r=db.transaction("data").objectStore("data").get(key);r.onsuccess=function(){resolve(r.result||[])};r.onerror=function(){resolve([])}};q.onerror=function(){resolve([])} }); }
+      window.__PD_DATA_READY__ = Promise.all([loadJson("./assets/dados/alimentos.json"),loadJson("./assets/dados/exercicios.json"),loadCustom("customFoods"),loadCustom("customExercises")]).then(function (files) {
+        var food = files[0] && files[0].registros ? files[0].registros : files[0];
+        var exercise = files[1] && files[1].registros ? files[1].registros : files[1];
+        var customFoods=files[2]||[], customExercises=files[3]||[];
+        window.__PD_ALIMENTOS__ = (food||[]).map(function(x){return Object.assign({origin:"oficial"},x)}).concat(customFoods);
+        window.__PD_EXERCICIOS_COMPENDIUM__ = (exercise||[]).filter(function (x) { return !x.grupo; }).map(function(x){return Object.assign({origin:"oficial"},x)}).concat(customExercises.filter(function(x){return !x.grupo}));
+        window.__PD_EXERCICIOS_MUSCULACAO__ = (exercise||[]).filter(function (x) { return !!x.grupo; }).map(function(x){return Object.assign({origin:"oficial"},x)}).concat(customExercises.filter(function(x){return !!x.grupo}));
+        return import("./assets/index-CZ9VoIu1.js");
+      }).catch(function (error) {
+        console.error("Prato do Dia: falha ao carregar bases oficiais", error);
+        var root = document.getElementById("root");
+        if (root) root.innerHTML = '<div style="padding:24px;font:16px system-ui;color:#0E2C4B">Não foi possível carregar as bases oficiais. Verifique os arquivos de dados.</div>';
+      });
+    })();
+  </script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CWVMaK0X.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  <script>
+    (function () {
+      if (!("serviceWorker" in navigator) || !/^https:|^http:\/\/localhost/.test(location.protocol + "//" + location.host)) return;
+      navigator.serviceWorker.register("./sw.js", { scope: "./" }).then(function () {
+        if (!navigator.serviceWorker.controller && !sessionStorage.getItem("pd-sw-reloaded")) {
+          sessionStorage.setItem("pd-sw-reloaded", "1");
+          location.reload();
+        }
+      }).catch(function (err) { console.warn("Prato do Dia: Service Worker não registrado", err); });
+    })();
+  </script>
+  <script data-pplx-inline-edit>
+(function () {
+  if (window === window.top) return;
+
+  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://perplexity.localhost","http://localhost:1420","http://127.0.0.1:1420","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
+  const MAX_FONT_BYTES = 500 * 1024;
+  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
+  let scrollForwarding = false;
+  let scrollRaf = 0;
+  let trustedTopOrigin = null;
+
+  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
+  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
+  // across multiple labels.
+  function matchesAllowedOrigin(origin) {
+    if (!origin) return false;
+    for (const entry of allowedParentOrigins) {
+      if (!entry.includes("*")) {
+        if (entry === origin) return true;
+        continue;
+      }
+      const pattern = new RegExp(
+        "^" +
+          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
+          "$",
+      );
+      if (pattern.test(origin)) return true;
+    }
+    return false;
+  }
+
+  // Trust decision: when the sender is same-origin-visible (event.origin is a
+  // real origin like https://www.perplexity.ai) we trust event.origin directly.
+  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
+  // broker's stamped `parentOrigin` to identify the top window. The fallback
+  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
+  // on the response path (see postToTrustedTop) to ensure replies can't be
+  // delivered to anyone but the actual top window of that claimed origin.
+  function getTrustedParentOrigin(event) {
+    const forwardedParentOrigin =
+      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
+    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
+    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
+  }
+
+  // All responses go to window.top with targetOrigin = the allowlisted origin.
+  // An attacker that iframes us inside their own null-origin broker can claim
+  // any parentOrigin they like, but the browser will drop the reply whenever
+  // the real top's origin doesn't match — so the screenshot never leaves.
+  function postToTrustedTop(message) {
+    if (!trustedTopOrigin) return;
+    try {
+      window.top.postMessage(message, trustedTopOrigin);
+    } catch (_error) {}
+  }
+
+  function inlineAll(original, clone) {
+    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
+
+    try {
+      const computedStyle = getComputedStyle(original);
+      // cssText on a computed style is the serialized declaration in modern
+      // Chromium/Safari — a single read beats enumerating ~400 longhand
+      // properties. Firefox returns "" here, so we fall back on empty.
+      const serialized = computedStyle.cssText;
+      if (serialized) {
+        clone.style.cssText = serialized;
+      } else {
+        const parts = new Array(computedStyle.length);
+        for (let index = 0; index < computedStyle.length; index += 1) {
+          const property = computedStyle[index];
+          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
+        }
+        clone.style.cssText = parts.join("");
+      }
+    } catch (_error) {}
+
+    const originalChildren = original.children;
+    const clonedChildren = clone.children;
+    for (
+      let index = 0;
+      index < originalChildren.length && index < clonedChildren.length;
+      index += 1
+    ) {
+      inlineAll(originalChildren[index], clonedChildren[index]);
+    }
+  }
+
+  function extractFontUrl(srcValue) {
+    const matches = [
+      ...srcValue.matchAll(
+        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
+      ),
+    ];
+    if (matches.length === 0) return null;
+    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
+    if (woff2) return woff2[1];
+    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
+    if (woff) return woff[1];
+    return matches[0][1];
+  }
+
+  // Cache resolved font URL -> data URI across captures. Fonts on a page
+  // essentially never change, and a batch run emits multiple captures back to
+  // back — without this we'd refetch + re-base64 every time.
+  const fontDataUriCache = new Map();
+  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
+
+  async function fetchAsDataUri(url) {
+    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
+    let dataUri = null;
+    try {
+      const response = await fetch(url, { mode: "cors", credentials: "omit" });
+      if (response.ok) {
+        const blob = await response.blob();
+        if (blob.size <= MAX_FONT_BYTES) {
+          dataUri = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+    } catch (_error) {
+      dataUri = null;
+    }
+    fontDataUriCache.set(url, dataUri);
+    return dataUri;
+  }
+
+  function collectFontFaceRuleTexts() {
+    const rules = [];
+    for (const sheet of document.styleSheets) {
+      let cssRules;
+      try {
+        cssRules = sheet.cssRules;
+      } catch (_error) {
+        continue;
+      }
+      if (!cssRules) continue;
+      for (const rule of cssRules) {
+        const cssText = rule.cssText || "";
+        if (cssText.startsWith("@font-face")) rules.push(cssText);
+      }
+    }
+    return rules;
+  }
+
+  async function buildInlinedFontCss() {
+    const ruleTexts = collectFontFaceRuleTexts();
+    if (ruleTexts.length === 0) return null;
+
+    const resolved = ruleTexts.map((cssText) => {
+      if (!SRC_DECLARATION_RE.test(cssText)) return null;
+      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
+      if (!srcMatch) return null;
+      const url = extractFontUrl(srcMatch[1]);
+      if (!url) return null;
+      try {
+        return { cssText, url: new URL(url, document.baseURI).href };
+      } catch (_error) {
+        return null;
+      }
+    });
+
+    const dataUris = await Promise.all(
+      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
+    );
+
+    const inlined = [];
+    let totalBytes = 0;
+    for (let index = 0; index < resolved.length; index += 1) {
+      const entry = resolved[index];
+      const dataUri = dataUris[index];
+      if (!entry || !dataUri) continue;
+      const approxBytes = dataUri.length * 0.75;
+      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
+      totalBytes += approxBytes;
+      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
+    }
+    return inlined.length > 0 ? inlined.join("\n") : null;
+  }
+
+  function stripExternal(clone) {
+    const images = clone.querySelectorAll("img");
+    for (let index = 0; index < images.length; index += 1) {
+      const src = images[index].getAttribute("src");
+      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
+    }
+
+    const elements = clone.querySelectorAll("*");
+    for (let index = 0; index < elements.length; index += 1) {
+      const style = elements[index].style.cssText;
+      if (style && style.includes("url(")) {
+        elements[index].style.cssText = style.replace(
+          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
+          "none",
+        );
+      }
+    }
+  }
+
+  function emitScroll() {
+    scrollRaf = 0;
+    if (!scrollForwarding) return;
+    postToTrustedTop({
+      type: "INLINE_EDIT_SCROLL",
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+    });
+  }
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!scrollForwarding || scrollRaf) return;
+      scrollRaf = requestAnimationFrame(emitScroll);
+    },
+    { passive: true, capture: true },
+  );
+
+  async function handleCaptureRequest(event) {
+    const requestId = event.data.requestId;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    function postResult(dataUrl) {
+      postToTrustedTop({
+        type: "INLINE_EDIT_SCREENSHOT_RESULT",
+        requestId,
+        dataUrl,
+        scrollX,
+        scrollY,
+      });
+    }
+
+    try {
+      // Wait for any pending web fonts to resolve so both inline metrics and
+      // the @font-face inlining below see the same loaded faces.
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (_error) {}
+      }
+
+      const clone = document.documentElement.cloneNode(true);
+      inlineAll(document.documentElement, clone);
+
+      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
+      for (let index = 0; index < removedNodes.length; index += 1) {
+        removedNodes[index].remove();
+      }
+
+      stripExternal(clone);
+
+      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
+      // can resolve them — external font URLs aren't fetched during
+      // foreignObject rendering, which would otherwise force a fallback face
+      // and change text metrics.
+      const inlinedFontCss = await buildInlinedFontCss();
+      if (inlinedFontCss) {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = inlinedFontCss;
+        const head = clone.querySelector("head");
+        if (head) head.appendChild(styleEl);
+        else clone.insertBefore(styleEl, clone.firstChild);
+      }
+
+      const html = new XMLSerializer().serializeToString(clone);
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        '<foreignObject width="100%" height="100%">' +
+        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
+        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
+        html +
+        "</div></div></foreignObject></svg>";
+      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      const image = new Image();
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        postResult(canvas.toDataURL("image/png"));
+      };
+      image.onerror = function () {
+        postResult(null);
+      };
+      image.src = svgUrl;
+    } catch (_error) {
+      postResult(null);
+    }
+  }
+
+  window.addEventListener("message", function (event) {
+    if (!event.data) return;
+    // Only accept messages from the direct parent frame. Blocks sibling /
+    // unrelated-window postMessage senders that could otherwise reach us.
+    if (event.source !== window.parent) return;
+
+    const trustedParentOrigin = getTrustedParentOrigin(event);
+    if (!trustedParentOrigin) return;
+    trustedTopOrigin = trustedParentOrigin;
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
+      scrollForwarding = true;
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
+      scrollForwarding = false;
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = 0;
+      return;
+    }
+
+    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
+
+    handleCaptureRequest(event);
+  });
+})();
+
+
+  </script>
+  <script>
+    try {
+      localStorage.setItem("prato-do-dia:usuario", "principal");
+    } catch (_) {}
+
+    (function () {
+      let installEvent = window.__pdInstallEvent || null;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = "⇩ Instalar";
+      button.setAttribute("aria-label", "Instalar Prato do Dia");
+      button.style.cssText = "position:fixed;right:14px;bottom:18px;z-index:9999;border:0;border-radius:10px;padding:11px 14px;background:#0E2C4B;color:#fff;font:600 14px system-ui;box-shadow:0 4px 14px #0003;cursor:pointer";
+      button.hidden = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+      document.body.appendChild(button);
+      window.addEventListener("beforeinstallprompt", function (event) {
+        event.preventDefault();
+        installEvent = event;
+        window.__pdInstallEvent = event;
+        button.hidden = false;
+      });
+      window.addEventListener("appinstalled", function () {
+        button.hidden = true;
+        installEvent = null;
+        window.__pdInstallEvent = null;
+      });
+      window.__pdInstallUnavailable = function () {
+        const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+        alert(ios
+          ? "No iPhone/iPad, abra no Safari, toque em Compartilhar e escolha Adicionar à Tela de Início."
+          : "A instalação nativa ainda não foi liberada pelo Chrome. Verifique se o app está aberto em HTTPS, recarregue uma vez e toque em Instalar novamente.");
+      };
+      button.addEventListener("click", async function () {
+        installEvent = installEvent || window.__pdInstallEvent || null;
+        if (!installEvent) {
+          window.__pdInstallUnavailable();
+          return;
+        }
+        try {
+          await installEvent.prompt();
+          await installEvent.userChoice;
+        } catch (_) {
+          window.__pdInstallUnavailable();
+        }
+        installEvent = null;
+        window.__pdInstallEvent = null;
+      });
+    })();
+
+    window.addEventListener("load", function () {
+      setTimeout(function () {
+        const root = document.getElementById("root");
+        if (root && root.children.length === 0) {
+          (window.__PD_DATA_READY__ || import("./assets/index-CZ9VoIu1.js?boot=9")).catch(function () {
+            root.innerHTML = '<div style="padding:24px;font:16px system-ui;color:#0E2C4B">Não foi possível carregar o aplicativo. Feche e abra novamente.</div>';
+          });
+        }
+      }, 900);
+    });
+  </script>
+  <script src="./assets/pd-data.js"></script>
+<style>
+@media print {
+  body > * { display:none !important; }
+  #pd-print-report { display:block !important; color:#111 !important; background:#fff !important; padding:24px; }
+  #pd-print-report * { color:#111 !important; }
+}
+#pd-print-report { display:none; }
+</style>
+<div id="pd-print-report"></div>
+<script>
+(function(){
+  const base = './port/5000/api';
+  const today = () => new Date().toISOString().slice(0,10);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const n = v => Number.isFinite(Number(v)) ? Number(v) : null;
+  const fmt = v => v == null ? '—' : Number(v).toLocaleString('pt-BR',{maximumFractionDigits:1});
+  const fmtDateBR = v => { if(!v) return '—'; const a=String(v).split('-'); return a.length===3 ? `${a[2]}/${a[1]}/${a[0].slice(2)}` : v; };
+  const fetchJson = path => fetch(base + path).then(r => { if(!r.ok) throw Error('HTTP '+r.status); return r.json(); });
+
+  // Edit workouts after they have been launched, including old dates.
+  async function editWorkout(id, row){
+    const all = await fetchJson('/workouts');
+    const item = all.find(x => String(x.id) === String(id));
+    if(!item) return;
+    const date = prompt('Data do exercício (AAAA-MM-DD):', item.date || today());
+    if(!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return alert('Data inválida. Use AAAA-MM-DD.');
+    const time = prompt('Horário (HH:MM):', item.time || '12:00');
+    if(!time || !/^\d{2}:\d{2}$/.test(time)) return alert('Horário inválido. Use HH:MM.');
+    const minutes = prompt('Minutos do exercício:', item.minutes ?? '');
+    if(minutes === null || !Number.isFinite(Number(minutes)) || Number(minutes) <= 0) return alert('Informe minutos válidos.');
+    const res = await fetch(base + '/workouts/' + encodeURIComponent(id), {method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,time,minutes:Number(minutes)})});
+    if(!res.ok) return alert('Não foi possível editar o exercício.');
+    location.reload();
+  }
+  function addWorkoutEditors(){
+    document.querySelectorAll('[data-testid^="button-del-workout-"]').forEach(del => {
+      if(del.previousElementSibling?.dataset?.pdEditWorkout) return;
+      const id = del.getAttribute('data-testid').replace('button-del-workout-','');
+      const b = document.createElement('button'); b.type='button'; b.dataset.pdEditWorkout='1';
+      b.textContent='editar'; b.title='Editar data, horário e duração';
+      b.style.cssText='border:1px solid hsl(var(--border));border-radius:6px;padding:6px 8px;font-size:11px;color:inherit;background:transparent;';
+      b.onclick=()=>editWorkout(id, b.closest('li'));
+      del.parentElement.insertBefore(b,del);
+    });
+  }
+
+  function activePanel(){
+    const tab=document.querySelector('[data-testid="tab-painel"]');
+    return !!tab && (tab.getAttribute('data-state')==='active' || tab.className.includes('bg-primary') || tab.getAttribute('aria-selected')==='true');
+  }
+  function metric(x, keys){ for(const k of keys){ const v=n(x[k]); if(v!=null) return v; } return null; }
+  function makeEvolution(records, height){
+    const rows=(records||[]).filter(x=>x && x.date).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+    const state={weight:null,bmi:null,fat:null,muscle:null,visceral:null};
+    const data=[];
+    for(const x of rows){
+      const w=metric(x,['weight','weightKg']); if(w!=null) state.weight=w;
+      const fat=metric(x,['bodyFat','bodyFatPct','fatPct']); if(fat!=null) state.fat=fat;
+      const muscle=metric(x,['muscle','musclePct','muscleMass']); if(muscle!=null) state.muscle=muscle;
+      const visceral=metric(x,['visceralFat','visceral','visceralLevel','visceralFatLevel']); if(visceral!=null) state.visceral=visceral;
+      const storedBmi=metric(x,['bmi','imc']); if(storedBmi!=null) state.bmi=storedBmi; else if(state.weight!=null && n(height)>0) state.bmi=state.weight/((Number(height)/100)**2);
+      if(Object.values(state).some(v=>v!=null)) data.push({date:x.date,...state});
+    }
+    return data;
+  }
+  function isoDay(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  function bodyPeriod(data, days){
+    days=Number(days)||30;
+    if(!data.length) return [];
+    const end=new Date(String(data[data.length-1].date)+'T12:00:00');
+    const start=new Date(end); start.setDate(start.getDate()-days+1);
+    const state={weight:null,bmi:null,fat:null,muscle:null,visceral:null};
+    let cursor=0; const out=[];
+    for(let i=0;i<days;i++){
+      const d=new Date(start); d.setDate(start.getDate()+i); const date=isoDay(d);
+      while(cursor<data.length && String(data[cursor].date)<=date){ Object.keys(state).forEach(k=>{ if(data[cursor][k]!=null) state[k]=data[cursor][k]; }); cursor++; }
+      if(Object.values(state).some(v=>v!=null)) out.push({date,...state});
+    }
+    return out;
+  }
+  function oneBodyChart(data, series, id){
+    if(!data.length) return '<p style="color:#667085">Registre medidas corporais para visualizar este gráfico.</p>';
+    const W=760,H=250,L=48,R=18,T=20,B=38;
+    const x=i=>L+i*Math.max(1,(W-L-R)/Math.max(1,data.length-1));
+    const values=series.flatMap(([,key])=>data.map(d=>d[key]).filter(v=>v!=null));
+    const lo=series.length===1 ? Math.min(...values)-Math.max(1,Math.abs(Math.min(...values))*0.02) : 0;
+    const hi=series.length===1 ? Math.max(...values)+Math.max(1,Math.abs(Math.max(...values))*0.02) : 100;
+    const span=(hi-lo)||1;
+    const y=v=>T+(hi-v)/span*(H-T-B);
+    const norm={};
+    series.forEach(([label,key,color,unit])=>{const vals=data.map(d=>d[key]).filter(v=>v!=null);const a=vals.length?Math.min(...vals):0,b=vals.length?Math.max(...vals):1;norm[key]={a,b,span:(b-a)||1};});
+    const yy=(key,v)=>series.length===1?y(v):y((v-norm[key].a)/norm[key].span*100);
+    const grid=[0,25,50,75,100].map(v=>{const gv=series.length===1?hi-(v/100)*(hi-lo):v;return `<line x1="${L}" y1="${y(gv)}" x2="${W-R}" y2="${y(gv)}" stroke="#dbe2ea" stroke-dasharray="3 4"/><text x="${L-8}" y="${y(gv)+4}" text-anchor="end" font-size="10" fill="#667085">${series.length===1?fmt(gv):v}</text>`}).join('');
+    const lines=series.map(([label,key,color])=>{const pts=data.map((d,i)=>d[key]==null?'':`${x(i)},${yy(key,d[key])}`).filter(Boolean).join(' ');return pts?`<polyline fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="${pts}"/>`:''}).join('');
+    const dots=series.map(([label,key,color])=>data.map((d,i)=>d[key]==null?'':`<circle cx="${x(i)}" cy="${yy(key,d[key])}" r="4" fill="${color}"/>`).join('')).join('');
+    const touch=data.map((d,i)=>`<rect class="pd-body-point" data-chart="${id}" data-index="${i}" x="${Math.max(L,x(i)-18)}" y="${T}" width="36" height="${H-T-B}" fill="transparent"/>`).join('');
+    const labels=data.map((d,i)=>i===0||i===data.length-1||data.length<=10?`<text x="${x(i)}" y="${H-10}" text-anchor="middle" font-size="10" fill="#667085">${esc(fmtDateBR(d.date).slice(0,5))}</text>`:'').join('');
+    const legend=series.map(([label,key,color,unit])=>`<span style="color:${color};margin-right:12px;white-space:nowrap">● ${label}</span>`).join('');
+    return `<div style="overflow:auto"><svg viewBox="0 0 ${W} ${H}" style="width:100%;min-width:560px;height:250px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;touch-action:pan-y"><rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="#f8fafc"/>${grid}${lines}${dots}${touch}${labels}</svg></div><div style="font-size:12px;margin:7px 0 0">${legend}</div>`;
+  }
+  function chartSvg(data, period){
+    const filtered=bodyPeriod(data,period);
+    const buttons=[7,14,30].map(n=>`<button type="button" class="pd-body-period" data-period="${n}" style="border:1px solid #cbd5e1;border-radius:7px;padding:6px 10px;background:${n===period?'#0E2C4B':'#fff'};color:${n===period?'#fff':'#334155'};font-size:12px">${n} dias</button>`).join('');
+    const tip='<div class="pd-body-tooltip" style="display:none;margin-top:10px;padding:9px 10px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;font-size:12px;line-height:1.55"></div>';
+    return `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0">${buttons}</div><h3 style="margin:8px 0 6px;font-size:14px">Peso</h3>${oneBodyChart(filtered,[['Peso','weight','#0E2C4B','kg']],'weight')}<h3 style="margin:18px 0 6px;font-size:14px">Índices corporais</h3>${oneBodyChart(filtered,[['IMC','bmi','#7C3AED',''],['Gordura corporal','fat','#DC2626','%'],['Músculos','muscle','#059669','%'],['Gordura visceral','visceral','#D97706','']],'indices')}${tip}`;
+  }
+  async function renderEvolution(){
+    addWorkoutEditors();
+    if(!activePanel()) return;
+    const root=document.querySelector('[data-testid="section-summary"]')?.parentElement || document.getElementById('root');
+    if(!root || root.querySelector('[data-testid="body-evolution-panel"]')) return;
+    try{
+      const [body,profile]=await Promise.all([fetchJson('/body'),fetchJson('/profile')]);
+      const data=makeEvolution(body,profile.heightCm);
+      const card=document.createElement('section'); card.dataset.testid='body-evolution-panel'; card.className='rounded-xl border border-card-border bg-card p-4 sm:p-5';
+      let period=30;
+      card.innerHTML=`<h2 class="text-base font-semibold">Evolução corporal</h2><p class="mt-1 text-xs" style="color:#667085">Quando uma medição não existe em uma data, o gráfico mantém o último valor informado. Escolha o período e toque em qualquer ponto para ver os números reais daquela data.</p><div data-testid="body-chart-content">${chartSvg(data,period)}</div>`;
+      function bind(){
+        card.querySelectorAll('.pd-body-period').forEach(function(btn){btn.addEventListener('click',function(){period=Number(btn.dataset.period);card.querySelector('[data-testid="body-chart-content"]').innerHTML=chartSvg(data,period);bind();});});
+        card.querySelectorAll('.pd-body-point').forEach(function(point){point.addEventListener('pointerdown',show);point.addEventListener('click',show);});
+      }
+      function show(event){const points=card.querySelectorAll('.pd-body-point[data-index="'+event.currentTarget.dataset.index+'"]');const d=bodyPeriod(data,period)[Number(event.currentTarget.dataset.index)];const tip=card.querySelector('.pd-body-tooltip');if(!d||!tip)return;tip.style.display='block';tip.innerHTML='<b>'+esc(fmtDateBR(d.date))+'</b><br>Peso: '+fmt(d.weight)+' kg<br>IMC: '+fmt(d.bmi)+'<br>Gordura: '+fmt(d.fat)+'%<br>Músculos: '+fmt(d.muscle)+'%<br>Gordura visceral: '+fmt(d.visceral);}
+      bind();
+      root.appendChild(card);
+    }catch(e){ console.warn('Evolução corporal:',e); }
+  }
+  async function printReport(){
+    try{
+      const [body,profile,entries,workouts,daily]=await Promise.all([fetchJson('/body'),fetchJson('/profile'),fetchJson('/entries'),fetchJson('/workouts'),fetchJson('/daily')]);
+      const data=makeEvolution(body,profile.heightCm); const box=document.getElementById('pd-print-report');
+      box.innerHTML=`<h1>Prato do Dia — Relatório do Painel</h1><p>Gerado em ${new Date().toLocaleString('pt-BR')}</p><h2>Perfil</h2><p>Nome: ${esc(profile.name||'')} · Altura: ${fmt(profile.heightCm)} cm · Peso: ${fmt(profile.weightKg)} kg</p><h2>Evolução corporal</h2>${chartSvg(data,30)}<h2>Resumo dos registros</h2><p>Alimentação: ${entries.length} lançamentos · Exercícios: ${workouts.length} lançamentos · Dias de hidratação: ${daily.length}</p>`;
+      window.print();
+    }catch(e){ alert('Não foi possível montar o relatório.'); }
+  }
+  function addPdfButton(){
+    return;
+    if(document.querySelector('[data-pd-pdf]')) return;
+    const b=document.createElement('button'); b.dataset.pdPdf='1'; b.textContent='Relatório PDF'; b.type='button';
+    b.style.cssText='position:fixed;left:14px;bottom:18px;z-index:9998;border:0;border-radius:10px;padding:11px 14px;background:#0E2C4B;color:#fff;font:600 14px system-ui;box-shadow:0 4px 14px #0003;cursor:pointer'; b.onclick=printReport; document.body.appendChild(b);
+  }
+  function directHeading(el, text){
+    return el && [...el.children].some(c=>c.tagName==='H2' && c.textContent.trim()===text);
+  }
+  function findCard(text){
+    const h=[...document.querySelectorAll('main h2')].find(x=>x.textContent.trim()===text);
+    if(h) return h.closest('div.rounded-xl,section') || h.parentElement?.parentElement;
+    return [...document.querySelectorAll('section,main div')].find(el=>directHeading(el,text));
+  }
+  function waterCardElement(){
+    const b=document.querySelector('[data-testid="button-water-200"]');
+    return b?.parentElement?.parentElement || null;
+  }
+  function moveWaterProgressToSummary(card){
+    if(!card) return;
+    const status=[...card.querySelectorAll('p')].find(x=>/\bml de \d/.test(x.textContent||''));
+    const progress=[...card.querySelectorAll('div')].find(x=>{
+      const c=String(x.className||'');
+      return c.includes('h-3') && c.includes('w-full') && x.querySelector('div');
+    });
+    if(!status || !progress) return;
+    [...card.querySelectorAll('h2')].forEach(h=>{h.textContent='Água';});
+    status.style.display='none';
+    progress.style.display='none';
+    const summaryHeading=[...document.querySelectorAll('main h2')].find(h=>h.textContent.trim()==='Resumo do dia');
+    const summary=summaryHeading?.closest('div.rounded-xl,section');
+    if(!summary) return;
+    let host=summary.querySelector('[data-testid="pd-water-summary"]');
+    if(!host){
+      host=document.createElement('div');
+      host.setAttribute('data-testid','pd-water-summary');
+      host.className='mt-4';
+      summary.appendChild(host);
+    }
+    host.innerHTML='';
+    const statusCopy=status.cloneNode(true);
+    statusCopy.style.display='';
+    statusCopy.className='mt-0 text-sm tabular-nums text-muted-foreground';
+    const progressCopy=progress.cloneNode(true);
+    progressCopy.style.display='';
+    host.appendChild(statusCopy);
+    host.appendChild(progressCopy);
+  }
+  function activeTab(id){
+    const b=document.querySelector('[data-testid="tab-'+id+'"]');
+    return !!b && (b.getAttribute('aria-selected')==='true' || b.getAttribute('data-state')==='active' || b.className.includes('bg-primary'));
+  }
+  function dashboardLayout(){
+    const summary=document.querySelector('[data-testid="section-summary"]');
+    const panel=summary?.parentElement;
+    const todayCard=findCard('Hoje');
+    const waterCard=waterCardElement() || findCard('Água, fibras e sódio') || findCard('Água');
+    const compCard=findCard('Composição corporal');
+    const chartCard=findCard('Alimentos × exercício');
+    const canDashboard=!!panel && !!todayCard;
+    let stash=document.getElementById('pd-water-stash');
+    if(!stash){ stash=document.createElement('div'); stash.id='pd-water-stash'; stash.hidden=true; document.body.appendChild(stash); }
+    if(waterCard){
+      [...waterCard.querySelectorAll(':scope > h2')].forEach(function(h){ h.textContent='Água'; }); if(!waterCard.querySelector(':scope > h2')){ const t=document.createElement('h2'); t.className='pd-water-title text-base font-semibold'; t.textContent='Água'; waterCard.prepend(t); }
+      const nutrientBox=[...waterCard.querySelectorAll('div')].find(x=>x.className.includes('space-y-3') && /Fibras hoje/.test(x.textContent||''));
+      if(nutrientBox){
+        const macro=[...todayCard.querySelectorAll('div')].find(x=>x.children.length===3 && /Proteínas/.test(x.textContent||'') && /Carboidratos/.test(x.textContent||'') && /Gorduras/.test(x.textContent||''));
+        if(macro && !todayCard.contains(nutrientBox)){ nutrientBox.className='mt-3 grid gap-3 sm:grid-cols-2'; macro.insertAdjacentElement('afterend',nutrientBox); }
+      }
+      const note=[...waterCard.querySelectorAll('p')].find(x=>/Fibras e sódio são calculados/.test(x.textContent||'')); if(note) note.remove();
+      if(activeTab('alimentos')){
+        const foodInput=document.querySelector('[data-testid="input-food"]'); const foodRoot=foodInput?.closest('div.space-y-5') || foodInput?.closest('section') || [...document.querySelectorAll('main > div, main > section')].find(x=>/Lançar|Alimentos|refeição/i.test(x.textContent||''));
+        if(foodRoot && !foodRoot.contains(waterCard)) foodRoot.prepend(waterCard);
+        moveWaterProgressToSummary(waterCard);
+      } else if(!stash.contains(waterCard)) stash.appendChild(waterCard);
+    }
+    if(activeTab('painel')){
+      if(summary && todayCard.parentElement!==panel) panel.insertBefore(todayCard,summary);
+      if(chartCard && compCard && compCard.parentElement!==panel) panel.appendChild(compCard);
+      const ev=document.querySelector('[data-testid="body-evolution-panel"]'); if(ev && ev.parentElement!==panel) panel.appendChild(ev);
+    }
+  }
+  let swipeX=null, swipeY=null;
+  document.addEventListener('touchstart',e=>{if(e.touches.length===1){swipeX=e.touches[0].clientX;swipeY=e.touches[0].clientY;}},{passive:true});
+  document.addEventListener('touchend',e=>{
+    if(swipeX===null||!e.changedTouches.length)return;
+    const dx=e.changedTouches[0].clientX-swipeX,dy=e.changedTouches[0].clientY-swipeY; swipeX=swipeY=null;
+    if(Math.abs(dx)<55||Math.abs(dx)<Math.abs(dy)*1.25)return;
+    const tabs=[...document.querySelectorAll('[data-testid^="tab-"]')]; const active=tabs.findIndex(b=>b.getAttribute('aria-selected')==='true'||b.getAttribute('data-state')==='active'||b.className.includes('bg-primary')); if(active<0)return;
+    const next=tabs[Math.max(0,Math.min(tabs.length-1,active+(dx<0?1:-1)))]; if(next) next.click();
+  },{passive:true});
+  const obs=new MutationObserver(()=>{addWorkoutEditors();addPdfButton();renderEvolution();setTimeout(dashboardLayout,80);});
+  obs.observe(document.body,{subtree:true,childList:true});
+  document.addEventListener('click',e=>{if(e.target.closest('[data-testid^="tab-"]')) setTimeout(()=>{document.querySelector('[data-testid="body-evolution-panel"]')?.remove();renderEvolution();setTimeout(dashboardLayout,350);setTimeout(dashboardLayout,800);setTimeout(dashboardLayout,1200);},120);});
+  window.addEventListener('load',()=>setTimeout(dashboardLayout,900));
+  setInterval(()=>{ if(activeTab('alimentos')) dashboardLayout(); },500);
+  // O relatório único é o botão Dados/PDF do módulo pd-data.js.
+})();
+</script>
+<script>/* pd-global-water-fallback-v1 */
+(function(){function moveWater(){var tab=document.querySelector('[data-testid="tab-alimentos"]');if(!tab||!tab.className.includes('bg-primary'))return;var btn=document.querySelector('[data-testid="button-water-200"]');if(!btn&&!window.__pdWaterBoot){var panel=document.querySelector('[data-testid="tab-painel"]');var food=tab;if(panel){window.__pdWaterBoot=true;panel.click();setTimeout(function(){food.click();},700);}return;}var card=btn&&btn.parentElement&&btn.parentElement.parentElement;var input=document.querySelector('[data-testid="input-food"]');var root=input&&input.closest('div.space-y-5');if(card&&root&&card.parentElement!==root)root.insertBefore(card,root.firstElementChild);}
+setInterval(moveWater,300);document.addEventListener('DOMContentLoaded',moveWater);})();
+</script>
+</body>
+</html>
